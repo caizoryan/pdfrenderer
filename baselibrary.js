@@ -914,10 +914,57 @@ function draw_paragraph(p, paragraph, grid) {
 	return _paragraph.text
 }
 
-function drawText(doc, props){
-			doc
-				.fillColor('black')
-				.text(props.text, props.x, props.y, { lineBreak: false })
+function fillColor(doc, props){
+	if (props.fill) doc.fillColor(props.fill)
+}
+
+function fill(doc, props){
+	if (props.fill) doc.fill(props.fill)
+}
+
+
+function stroke(doc, props){
+	if (props.stroke) doc.stroke(props.stroke)
+}
+
+function strokeColor(doc, props){
+	if (props.stroke) doc.strokeColor(props.stroke)
+}
+
+function fontSize(doc, props){
+	if (props.fontSize) doc.fontSize(props.fontSize)
+}
+
+function lineWidth(doc, props){
+	console.log("line width", props.lineWidth)
+	if (props.lineWidth) doc.lineWidth(props.lineWidth)
+}
+
+function text(doc, props){
+	fillColor(doc, props)
+	strokeColor(doc, props)
+	fontSize(doc, props)
+	lineWidth(doc, props)
+	let opts = {linebreak: false}
+	if (props.stroke) opts.stroke =true
+	if (props.fill) opts.fill = true
+	else opts.fill = false
+	doc.text(props.text, props.x, props.y, opts)
+	doc.dash(5, {space: 1})
+	// doc.undash()
+	// if (props.stroke) doc.stroke()
+}
+function rect(doc, props){
+	// let opts = {linebreak: false}
+	// if (props.stroke) opts.stroke =true
+	// if (props.fill) opts.fill = true
+	// else opts.fill = false
+	doc.rect(props.x, props.y, props.width, props.height)
+	stroke(doc, props)
+	fill(doc, props)
+	// doc.dash(5, {space: 1})
+	// doc.undash()
+	// if (props.stroke) doc.stroke()
 }
 
 export let foot = ([text, side = 'left']) => (
@@ -986,7 +1033,8 @@ export let rootenv = {
 		console.log(items)
 		return Group(items)
 	},
-	"drawText": (props) => ({draw: (doc) => drawText(doc, props)}),
+	"text": (props) => ({draw: (doc) => text(doc, props)}),
+	"rect": (props) => ({draw: (doc) => rect(doc, props)}),
 	"range": ([count]) => Array(parseInt(count)).fill(0).map((_, i) => i),
 	"Fold": (props) => props,
 	"History": (props) => runa(props[props[0]]),

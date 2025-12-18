@@ -5,6 +5,8 @@ import {runa, f} from "./runa.js"
 import * as PDFJS from "https://esm.sh/pdfjs-dist";
 import * as PDFWorker from "https://esm.sh/pdfjs-dist/build/pdf.worker.min";
 
+let queued
+
 try {
   PDFJS.GlobalWorkerOptions.workerSrc = PDFWorker;
 	console.log("TRIED")
@@ -12,15 +14,11 @@ try {
   window.pdfjsWorker = PDFWorker;
 	console.log("CAUGHT")
 }
-
-let queued
-
 function loadAndRender(url) {
 	let start = new Date()
   var loadingTask = PDFJS.getDocument(url);
   loadingTask.promise.then((pdf) => render(pdf, start), (reason) =>  console.error(reason));
 }
-
 let render = (pdf, start) => {
 		let end = new Date()
 		let ms = end.valueOf() - start.valueOf()
@@ -55,84 +53,6 @@ let render = (pdf, start) => {
       });
     });
 }
-
-let size = 10
-let gap = 10
-// let funkyforms = (doc) => {
-// 	for (let i = inch(1); i < inch(6); i += size + gap) {
-// 		for (let j = inch(3); j < inch(7); j += size + gap) {
-// 			if (Math.random() > 0.5) continue
-
-// 			let rotation = Math.random() * 10 + 15
-// 			let x = i - 5
-// 			let y = j - 2
-// 			let opacity = Math.random()
-
-// 			doc
-// 				.save()
-// 				.rotate(rotation, { origin: [i - 5 + 20, j - 2 + 20] })
-// 				.rect(x, y, size, size)
-// 				.strokeOpacity(opacity)
-// 				.stroke('White')
-// 				.restore()
-
-// 			doc
-// 				.fontSize(7)
-// 				.fillColor('White', .6)
-// 				.text("(( " + Math.floor(opacity * 100) + "% ))", x + 5, y + 5, { lineBreak: false })
-// 		}
-// 	}
-
-// 	doc
-// 		.save()
-// 		.circle(inch(7), inch(3), inch(1.8))
-// 		.dash(5, { space: 10 })
-// 		.stroke('White')
-// 		.restore()
-
-// 	doc
-// 		.save()
-// 		.circle(inch(5), inch(5.8), inch(.8))
-// 		.dash(5, { space: 10 })
-// 		.lineWidth(3)
-// 		.stroke('White')
-// 		.restore()
-
-// 	doc
-// 		.save()
-// 		.circle(inch(2.3), inch(5.4), inch(.5))
-// 		.dash(5, { space: 10 })
-// 		.lineWidth(5)
-// 		.stroke('White')
-// 		.restore()
-
-// 	doc
-// 		.moveTo(inch(4.5), inch(1))
-// 		.lineTo(inch(4), inch(7))
-// 		.lineWidth(3)
-// 		.stroke('White')
-
-// 	doc
-// 		.moveTo(inch(8), inch(1))
-// 		.lineTo(inch(6), inch(5))
-// 		.lineWidth(5)
-// 		.stroke('White')
-
-
-// 	doc
-// 		.moveTo(inch(10), inch(1))
-// 		.lineTo(inch(7), inch(4))
-// 		.lineWidth(8)
-// 		.stroke('White')
-
-
-
-
-// }
-let inch = v => v * 72
-// doc.pipe(fs.createWriteStream('output.pdf'));
-
-
 function throttle(mainFunction, delay) {
   let timerFlag = null; // Variable to keep track of the timer
 
@@ -150,18 +70,29 @@ function throttle(mainFunction, delay) {
 let draw = (drawables) => {
 		const doc = new PDFDocument({ layout: 'landscape' });
 		var stream = doc.pipe(blobStream());
-
 		drawables.forEach(fn => fn.draw(doc))
 		doc.end();
 		stream.on('finish', () => loadAndRender(stream.toBlobURL('application/pdf')));
 }
 
 let spread = [
+	[f("rect"), f("{}"),
+		['x', Math.random() * 100],
+		['y', 30],
+		['fill', 'red'],
+		['stroke', 'black'],
+		['width', 50],
+		['height', 80]],
 	...Array(10).fill(0).map((e, i) =>
-		[f("drawText"), f("{}"),
+		[f("text"), f("{}"),
 			["text", "hello world"],
-			['x', 10],
-			['y', i*10]])
+			['x', Math.random() * 100],
+			['y', i*30],
+			// ['fill', false],
+			['fontSize', 84],
+			['lineWidth', Math.random()*3],
+			['stroke', 'red']
+		])
 	
 ]
 
