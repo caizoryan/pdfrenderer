@@ -945,7 +945,7 @@ function text(doc, props){
 	strokeColor(doc, props)
 	fontSize(doc, props)
 	lineWidth(doc, props)
-	let opts = {linebreak: false}
+	let opts = {lineBreak: false}
 	if (props.stroke) opts.stroke =true
 	if (props.fill) opts.fill = true
 	else opts.fill = false
